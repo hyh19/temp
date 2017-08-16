@@ -16,9 +16,11 @@ cursor = cnx.cursor(buffered=True)
 
 # cursor.execute(query)
 
-cursor.execute('SELECT * FROM product WHERE gift_id = "1-2DJ-98"')
-if cursor.with_rows:
-	print "有数据"
+def isGiftExist(cur, gid):
+	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s"
+	cur.execute(select_stmt, {'gift_id': gid})
+	return (cur.rowcount > 0)
+
 # row = cursor.fetchone()
 # print row
 # for row in cursor:
