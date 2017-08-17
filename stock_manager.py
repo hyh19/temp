@@ -4,6 +4,9 @@ import string
 import openpyxl
 from openpyxl.utils.cell import get_column_letter, column_index_from_string
 import pprint
+import mysql.connector
+from datetime import datetime
+
 wb = openpyxl.load_workbook(sys.argv[1])
 sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
 
@@ -24,6 +27,7 @@ PRD_SEQ_NO = 'seq_no'
 PRD_STORE = 'store_scope'
 PRD_CARD = 'card_id'
 PRD_DEL = 'is_del'
+PRD_DESC = 'description'
 
 # xlsx字母列对应的字段名
 PRD_COLUMN_NAME_DICT = {}
@@ -43,6 +47,7 @@ PRD_COLUMN_NAME_DICT['R'] = PRD_SEQ_NO
 PRD_COLUMN_NAME_DICT['S'] = PRD_STORE
 PRD_COLUMN_NAME_DICT['T'] = PRD_CARD
 PRD_COLUMN_NAME_DICT['U'] = PRD_DEL
+PRD_COLUMN_NAME_DICT['V'] = PRD_DESC
 
 def strippedString(str):
 	return string.strip(str)
@@ -74,6 +79,7 @@ def formatRowDict(dict):
 	dict[PRD_CARD] = int(dict[PRD_CARD][0])
 	# 是否上架截取整数
 	dict[PRD_DEL] = int(dict[PRD_DEL][0])
+	dict[PRD_DESC] = r'<div align="center"><img src="http://cdn-yyj.4000916916.com/wx/wxExchange/prdDescImage/111500000016_20161122.jpg"></div>'
 	return dict
 
 # 将某一行的数据构建成一个字典
@@ -88,3 +94,29 @@ def buildRowDict(worksheet, row_index):
 tmp = buildRowDict(sheet, 3)
 pprint.pprint(tmp)
 
+cnx = mysql.connector.connect(user='root', password='tcbj',
+                              host='192.168.103.107',
+                              database='wxexchange')
+if cnx.is_connected():
+	print '已连接数据库'
+else:
+	print '数据库连接失败'
+
+cursor = cnx.cursor(buffered=True)
+
+def isGiftExist(cur, gid):
+	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s"
+	cur.execute(select_stmt, {'gift_id': gid})
+	return (cur.rowcount > 0)
+
+def insertNewGift(conn, cur, gift):
+	add_gift = ("INSERT INTO product "
+                "(gift_id, prd_code, prd_name, origin_point, type, ex_times, start_time, end_time, exchange_type, seq_no, module, description, store_scope, card_id, is_del, month_exchange) "
+                "VALUES (%(gift_id)s, %(prd_code)s, %(prd_name)s, %(origin_point)s, %(type)s, %(ex_times)s, %(start_time)s, %(end_time)s, %(exchange_type)s, %(seq_no)s, %(module)s, %(description)s, %(store_scope)s, %(card_id)s, %(is_del)s, %(month_exchange)s)")
+	cur.execute(add_gift, gift)
+	conn.commit()
+
+insertNewGift(cnx, cursor, tmp)
+
+cursor.close()
+cnx.close()
