@@ -117,16 +117,17 @@ def isGiftExist(cur, gid):
 	return (cur.rowcount > 0)
 
 def insertNewGift(conn, cur, gift):
+	# 插入礼品
 	add_gift = ("INSERT INTO product "
                 "(gift_id, prd_code, prd_name, origin_point, type, ex_times, start_time, end_time, exchange_type, seq_no, module, description, store_scope, card_id, is_del, month_exchange) "
                 "VALUES (%(gift_id)s, %(prd_code)s, %(prd_name)s, %(origin_point)s, %(type)s, %(ex_times)s, %(start_time)s, %(end_time)s, %(exchange_type)s, %(seq_no)s, %(module)s, %(description)s, %(store_scope)s, %(card_id)s, %(is_del)s, %(month_exchange)s)")
 	cur.execute(add_gift, gift)
-	conn.commit()
-
-def updateStockId(conn, cur, gift):
-	print "待开发"
-
+	# 修改库存ID
+	update_gift = "UPDATE product SET stock_id = %(stock_id)s WHERE id = %(id)s"
+	cur.execute(update_gift, {'stock_id': cur.lastrowid, 'id': cur.lastrowid})
+	
 insertNewGift(cnx, cursor, tmp)
 
+cnx.commit()
 cursor.close()
 cnx.close()
