@@ -7,9 +7,6 @@ import pprint
 wb = openpyxl.load_workbook(sys.argv[1])
 sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
 
-cell = sheet['I6']
-print cell.value[0]
-
 # 字段名称
 PRD_GIFT_ID = 'gift_id'
 PRD_CODE = 'prd_code'
@@ -58,11 +55,11 @@ def formatRowDict(dict):
 	# 礼品名称去掉空格
 	dict[PRD_NAME] = strippedString(dict[PRD_NAME])
 	# 常规兑分值转化为整数
-	dict[PRD_POINT] = int(dict[PRD_POINT])
+	# dict[PRD_POINT] = int(dict[PRD_POINT])
 	# 产品类型截取整数
 	dict[PRD_TYPE] = int(dict[PRD_TYPE][0])
 	# 限购次数转化为整数
-	dict[PRD_EX_TIMES] = int(dict[PRD_EX_TIMES])
+	# dict[PRD_EX_TIMES] = int(dict[PRD_EX_TIMES])
 	# 是否每月限制截取整数
 	dict[PRD_MONTH_EXCHANGE] = int(dict[PRD_MONTH_EXCHANGE][0])
 	# 是否快递截取整数
@@ -70,7 +67,7 @@ def formatRowDict(dict):
 	# 所在版块截取整数
 	dict[PRD_MODULE] = int(dict[PRD_MODULE][0])
 	# 所在位置转化为整数
-	dict[PRD_SEQ_NO] = int(dict[PRD_SEQ_NO])
+	# dict[PRD_SEQ_NO] = int(dict[PRD_SEQ_NO])
 	# 是否指定门店截取整数
 	dict[PRD_STORE] = int(dict[PRD_STORE][0])
 	# 是否券码截取整数
