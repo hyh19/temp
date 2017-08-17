@@ -6,6 +6,9 @@ import pprint
 wb = openpyxl.load_workbook(sys.argv[1])
 sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
 
+cell = sheet['I6']
+print cell.value[0]
+
 # 字段名称
 PRD_GIFT_ID = 'gift_id'
 PRD_CODE = 'prd_code'
@@ -52,6 +55,6 @@ def buildRowDict(worksheet, row_index):
 				row_dict.setdefault(PRD_COLUMN_NAME_DICT[cell.column], cell.value)
 	return row_dict
 
-tmp = buildRowDict(sheet, 2)
-pprint.pprint(tmp)
+# tmp = buildRowDict(sheet, 2)
+# pprint.pprint(tmp)
 
