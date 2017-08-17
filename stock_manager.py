@@ -5,7 +5,7 @@ import openpyxl
 from openpyxl.utils.cell import get_column_letter, column_index_from_string
 import pprint
 import mysql.connector
-from datetime import datetime
+from datetime import datetime, date
 
 wb = openpyxl.load_workbook(sys.argv[1])
 sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
@@ -49,6 +49,13 @@ PRD_COLUMN_NAME_DICT['T'] = PRD_CARD
 PRD_COLUMN_NAME_DICT['U'] = PRD_DEL
 PRD_COLUMN_NAME_DICT['V'] = PRD_DESC
 
+# 用礼品的条形码构建其描述内容
+def buildGiftDesc(code):
+	url1 = r'<div align="center"><img src="http://cdn-yyj.4000916916.com/wx/wxExchange/prdDescImage/'
+	url2 = "{}_{}".format(code, date.today().strftime("%Y%m%d"))
+	url3 = r'.jpg"></div>'
+	return (url1+url2+url3)
+
 def strippedString(str):
 	return string.strip(str)
 
@@ -79,7 +86,7 @@ def formatRowDict(dict):
 	dict[PRD_CARD] = int(dict[PRD_CARD][0])
 	# 是否上架截取整数
 	dict[PRD_DEL] = int(dict[PRD_DEL][0])
-	dict[PRD_DESC] = r'<div align="center"><img src="http://cdn-yyj.4000916916.com/wx/wxExchange/prdDescImage/111500000016_20161122.jpg"></div>'
+	dict[PRD_DESC] = buildGiftDesc(dict[PRD_CODE])
 	return dict
 
 # 将某一行的数据构建成一个字典
