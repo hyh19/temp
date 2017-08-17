@@ -116,6 +116,9 @@ def insertNewGift(conn, cur, gift):
 	cur.execute(add_gift, gift)
 	conn.commit()
 
+def updateStockId(conn, cur, gift):
+	print "待开发"
+
 insertNewGift(cnx, cursor, tmp)
 
 cursor.close()
