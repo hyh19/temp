@@ -116,6 +116,7 @@ def isGiftExist(cur, gid):
 	cur.execute(select_stmt, {'gift_id': gid})
 	return (cur.rowcount > 0)
 
+# 插入一条新的礼品记录
 def insertNewGift(conn, cur, gift):
 	# 插入礼品
 	add_gift = ("INSERT INTO product "
@@ -125,6 +126,19 @@ def insertNewGift(conn, cur, gift):
 	# 修改库存ID
 	update_gift = "UPDATE product SET stock_id = %(stock_id)s WHERE id = %(id)s"
 	cur.execute(update_gift, {'stock_id': cur.lastrowid, 'id': cur.lastrowid})
+
+	stock = {PRD_STOCK_COUNT: gift[PRD_STOCK_COUNT]}
+	insertStock(conn, cur, stock)
+
+# 插入一条新的库存记录
+def insertStock(conn, cur, stock):
+	insert_stock = ("INSERT INTO product_stock (total_count) VALUES (%(total_count)s)")
+	cur.execute(insert_stock, {'total_count': stock[PRD_STOCK_COUNT]})
+
+# def updateGift(conn, cur, gift):
+# 	# 修改库存总量
+# 	update_gift = "UPDATE product SET  = %(stock_id)s WHERE gift_id = %(gift_id)s"
+# 	cur.execute(update_gift, {'stock_id': cur.lastrowid, 'id': cur.lastrowid})
 	
 insertNewGift(cnx, cursor, tmp)
 
