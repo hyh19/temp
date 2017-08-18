@@ -169,7 +169,7 @@ else:
 cursor = cnx.cursor(buffered=True, dictionary=True)
 
 gift_xls = buildRowDict(sheet, 3)
-gift_xls[ROW_GIFT_ID] = 'test-006'
+gift_xls[ROW_GIFT_ID] = 'test-007'
 gift_xls[ROW_IS_DEL] = 0
 
 # 查询数据库礼品记录
@@ -183,11 +183,8 @@ if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
 		updateGiftRow(cursor, gift_row, gift_xls)
 	else: # 每月兑换无限制
 		print "** ** 每月兑换无限制"
-		if gift_row[ROW_IS_DEL] == 1: # 目前是下架状态
-			print "** ** ** 目前是下架状态，直接插入一条新的礼品记录", gift_xls[ROW_GIFT_ID]
-		else: # 目前是上架状态
-			print "**** 目前是上架状态，先修改为下架状态，再插入一条新的记录", gift_xls[ROW_GIFT_ID]
-			unshelveGiftRow(cursor, gift_row['id'])
+		print "**** 目前是上架状态，先修改为下架状态，再插入一条新的记录", gift_xls[ROW_GIFT_ID]
+		unshelveGiftRow(cursor, gift_row['id'])
 		# 插入一条新记录
 		insertGiftRow(cursor, gift_xls)
 
