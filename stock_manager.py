@@ -6,6 +6,7 @@ from openpyxl.utils.cell import get_column_letter, column_index_from_string
 import pprint
 import mysql.connector
 from datetime import datetime, date
+import os
 
 # 数据库字段名称
 ROW_ID = 'id'
@@ -159,9 +160,11 @@ cnx = mysql.connector.connect(user='root', password='tcbj',
                               host='192.168.103.107',
                               database='wxexchange')
 if cnx.is_connected():
-	print '---- 已连接数据库 ----'
+	print '++++ 已连接数据库 ++++'
+
 else:
-	print '---- 数据库连接失败 ----'
+	print '++++ 连接数据库失败，退出程序 ++++'
+	os._exit(0)
 
 cursor = cnx.cursor(buffered=True, dictionary=True)
 
