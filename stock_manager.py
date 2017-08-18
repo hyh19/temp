@@ -8,7 +8,7 @@ import mysql.connector
 from datetime import datetime, date
 
 # 字段名称
-PRD_GIFT_ID = 'gift_id'
+ROW_GIFT_ID = 'gift_id'
 PRD_CODE = 'prd_code'
 PRD_NAME = 'prd_name'
 PRD_POINT = 'origin_point'
@@ -23,12 +23,12 @@ PRD_MODULE = 'module'
 PRD_SEQ_NO = 'seq_no'
 PRD_STORE = 'store_scope'
 PRD_CARD = 'card_id'
-PRD_DEL = 'is_del'
+ROW_IS_DEL = 'is_del'
 PRD_DESC = 'description'
 
 # xlsx字母列对应的字段名
 PRD_COLUMN_NAME_DICT = {}
-PRD_COLUMN_NAME_DICT['D'] = PRD_GIFT_ID
+PRD_COLUMN_NAME_DICT['D'] = ROW_GIFT_ID
 PRD_COLUMN_NAME_DICT['E'] = PRD_CODE
 PRD_COLUMN_NAME_DICT['F'] = PRD_NAME
 PRD_COLUMN_NAME_DICT['G'] = PRD_POINT
@@ -43,7 +43,7 @@ PRD_COLUMN_NAME_DICT['Q'] = PRD_MODULE
 PRD_COLUMN_NAME_DICT['R'] = PRD_SEQ_NO
 PRD_COLUMN_NAME_DICT['S'] = PRD_STORE
 PRD_COLUMN_NAME_DICT['T'] = PRD_CARD
-PRD_COLUMN_NAME_DICT['U'] = PRD_DEL
+PRD_COLUMN_NAME_DICT['U'] = ROW_IS_DEL
 PRD_COLUMN_NAME_DICT['V'] = PRD_DESC
 
 # 用礼品的条形码构建其描述内容
@@ -58,7 +58,7 @@ def strippedString(str):
 
 def formatRowDict(dict):
 	# 礼品编码去掉空格
-	dict[PRD_GIFT_ID] = strippedString(dict[PRD_GIFT_ID])
+	dict[ROW_GIFT_ID] = strippedString(dict[ROW_GIFT_ID])
 	# 产品条形码去掉空格
 	dict[PRD_CODE] = strippedString(dict[PRD_CODE])
 	# 礼品名称去掉空格
@@ -82,7 +82,7 @@ def formatRowDict(dict):
 	# 是否券码截取整数
 	dict[PRD_CARD] = int(dict[PRD_CARD][0])
 	# 是否上架截取整数
-	dict[PRD_DEL] = int(dict[PRD_DEL][0])
+	dict[ROW_IS_DEL] = int(dict[ROW_IS_DEL][0])
 	dict[PRD_DESC] = buildGiftDesc(dict[PRD_CODE])
 	return dict
 
@@ -98,27 +98,29 @@ def buildRowDict(worksheet, row_index):
 # 数据库查询在上架状态的礼品记录
 def selectGiftRow(cursor, gift_xls):
 	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s AND is_del = 0 AND module = %(module)s"
-	cursor.execute(select_stmt, {'gift_id': gift_xls[PRD_GIFT_ID], 'module': gift_xls[PRD_MODULE]})
+	cursor.execute(select_stmt, {'gift_id': gift_xls[ROW_GIFT_ID], 'module': gift_xls[PRD_MODULE]})
 	gift_row = cursor.fetchone()
 	return gift_row
 
 # 插入一条新的礼品记录
-def insertGift(cursor, gift):
-	# 插入礼品
-	insert_gift = ("INSERT INTO product "
-                   "(gift_id, prd_code, prd_name, origin_point, type, ex_times, start_time, end_time, exchange_type, seq_no, module, description, store_scope, card_id, is_del, month_exchange) "
-                   "VALUES (%(gift_id)s, %(prd_code)s, %(prd_name)s, %(origin_point)s, %(type)s, %(ex_times)s, %(start_time)s, %(end_time)s, %(exchange_type)s, %(seq_no)s, %(module)s, %(description)s, %(store_scope)s, %(card_id)s, %(is_del)s, %(month_exchange)s)")
-	cursor.execute(insert_gift, gift)
+def insertGiftRow(cursor, gift_xls):
+	# 如果Excel表写的是下架，则不要插入新的记录。
+	if gift_xls[ROW_IS_DEL] == 0:
+		# 插入礼品
+		insert_gift = ("INSERT INTO product "
+	                   "(gift_id, prd_code, prd_name, origin_point, type, ex_times, start_time, end_time, exchange_type, seq_no, module, description, store_scope, card_id, is_del, month_exchange) "
+	                   "VALUES (%(gift_id)s, %(prd_code)s, %(prd_name)s, %(origin_point)s, %(type)s, %(ex_times)s, %(start_time)s, %(end_time)s, %(exchange_type)s, %(seq_no)s, %(module)s, %(description)s, %(store_scope)s, %(card_id)s, %(is_del)s, %(month_exchange)s)")
+		cursor.execute(insert_gift, gift_xls)
 
-	# 修改礼物记录里的库存ID
-	update_gift = "UPDATE product SET stock_id = %(stock_id)s WHERE id = %(id)s"
-	cursor.execute(update_gift, {'stock_id': cursor.lastrowid, 'id': cursor.lastrowid})
+		# 修改礼物记录里的库存ID
+		update_gift = "UPDATE product SET stock_id = %(stock_id)s WHERE id = %(id)s"
+		cursor.execute(update_gift, {'stock_id': cursor.lastrowid, 'id': cursor.lastrowid})
 
-	# 插入一条新的库存记录
-	insertStock(cursor, gift[PRD_STOCK_COUNT])
+		# 插入一条新的库存记录
+		insertStock(cursor, gift_xls[PRD_STOCK_COUNT])
 
 # 修改礼品记录为下架状态
-def unshelveGift(cursor, id):
+def unshelveGiftRow(cursor, id):
 	update_gift = "UPDATE product SET is_del = %(is_del)s WHERE id = %(id)s"
 	cursor.execute(update_gift, {'is_del': 1, 'id': id})
 
@@ -156,32 +158,32 @@ else:
 
 cursor = cnx.cursor(buffered=True, dictionary=True)
 
-tmp = buildRowDict(sheet, 3)
-tmp[PRD_GIFT_ID] = 'test-003'
+gift_xls = buildRowDict(sheet, 3)
+gift_xls[ROW_GIFT_ID] = 'test-005'
+gift_xls[ROW_IS_DEL] = 1
 
-
-gift_row = selectGiftRow(cursor, tmp)
+# 查询数据库礼品记录
+gift_row = selectGiftRow(cursor, gift_xls)
 print gift_row
 
-# 礼品已经存在则修改相应记录
-# 礼品不存在则插入一条新的记录
-# if gift_row:
-# 	print "**** 礼品已经存在，修改相关数据", tmp[PRD_GIFT_ID]
-# 	# 每月限制
-# 	# 每月不限制
-# 	if gift_row[PRD_MONTH_EXCHANGE] == 1:
-# 		print "**** 每月限制，修改相关数据"
-# 	else:
-# 		print "**** 每月不限制， 判断上下架状态"
-# 		if gift_row[PRD_DEL] == 1:
-# 			print "目前是下架状态，直接插入一条新的礼品记录", tmp[PRD_GIFT_ID]
-# 		else:
-# 			print "**** 目前是上架状态，先修改为下架状态，再插入一条新的记录", tmp[PRD_GIFT_ID]
-# 			unshelveGift(cursor, gift_row['id'])
-# 		insertGift(cursor, tmp)
-# else:
-# 	print "---- 礼品不存在，插入新的记录", tmp[PRD_GIFT_ID]
-# 	insertGift(cursor, tmp)
+if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
+	print "** 礼品已经存在，修改相关数据", gift_xls[ROW_GIFT_ID]
+
+	if gift_row[PRD_MONTH_EXCHANGE] == 1: # 每月兑换有限制
+		print "** ** 每月兑换有限制，修改相关数据"
+	else: # 每月兑换无限制
+		print "** ** 每月兑换无限制"
+		if gift_row[ROW_IS_DEL] == 1: # 目前是下架状态
+			print "** ** ** 目前是下架状态，直接插入一条新的礼品记录", gift_xls[ROW_GIFT_ID]
+		else: # 目前是上架状态
+			print "**** 目前是上架状态，先修改为下架状态，再插入一条新的记录", gift_xls[ROW_GIFT_ID]
+			unshelveGiftRow(cursor, gift_row['id'])
+		# 插入一条新记录
+		insertGiftRow(cursor, gift_xls)
+
+else: # 数据库礼品记录不存在则插入一条新记录
+	print "-- 礼品不存在，插入一条新记录", gift_xls[ROW_GIFT_ID]
+	insertGiftRow(cursor, gift_xls)
 
 cnx.commit()
 cursor.close()
