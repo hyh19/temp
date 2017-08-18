@@ -9,42 +9,42 @@ from datetime import datetime, date
 
 # 字段名称
 ROW_GIFT_ID = 'gift_id'
-PRD_CODE = 'prd_code'
-PRD_NAME = 'prd_name'
-PRD_POINT = 'origin_point'
-PRD_TYPE = 'type'
-PRD_EX_TIMES = 'ex_times'
-PRD_MONTH_EXCHANGE = 'month_exchange'
-PRD_START_TIME = 'start_time'
-PRD_END_TIME = 'end_time'
-PRD_EX_TYPE = 'exchange_type'
-PRD_STOCK_COUNT = 'total_count'
-PRD_MODULE = 'module'
-PRD_SEQ_NO = 'seq_no'
-PRD_STORE = 'store_scope'
-PRD_CARD = 'card_id'
+ROW_PRD_CODE = 'prd_code'
+ROW_PRD_NAME = 'prd_name'
+ROW_ORIGIN_POINT = 'origin_point'
+ROW_TYPE = 'type'
+ROW_EX_TIMES = 'ex_times'
+ROW_MONTH_EXCHANGE = 'month_exchange'
+ROW_START_TIME = 'start_time'
+ROW_END_TIME = 'end_time'
+ROW_EXCHANGE_TYPE = 'exchange_type'
+ROW_TOTAL_COUNT = 'total_count'
+ROW_MODULE = 'module'
+ROW_SEQ_NO = 'seq_no'
+ROW_STORE_SCOPE = 'store_scope'
+ROW_CARD_ID = 'card_id'
 ROW_IS_DEL = 'is_del'
-PRD_DESC = 'description'
+ROW_DESCRIPTION = 'description'
 
-# xlsx字母列对应的字段名
-PRD_COLUMN_NAME_DICT = {}
-PRD_COLUMN_NAME_DICT['D'] = ROW_GIFT_ID
-PRD_COLUMN_NAME_DICT['E'] = PRD_CODE
-PRD_COLUMN_NAME_DICT['F'] = PRD_NAME
-PRD_COLUMN_NAME_DICT['G'] = PRD_POINT
-PRD_COLUMN_NAME_DICT['I'] = PRD_TYPE
-PRD_COLUMN_NAME_DICT['J'] = PRD_EX_TIMES
-PRD_COLUMN_NAME_DICT['K'] = PRD_MONTH_EXCHANGE
-PRD_COLUMN_NAME_DICT['L'] = PRD_START_TIME
-PRD_COLUMN_NAME_DICT['M'] = PRD_END_TIME
-PRD_COLUMN_NAME_DICT['N'] = PRD_EX_TYPE
-PRD_COLUMN_NAME_DICT['O'] = PRD_STOCK_COUNT
-PRD_COLUMN_NAME_DICT['Q'] = PRD_MODULE
-PRD_COLUMN_NAME_DICT['R'] = PRD_SEQ_NO
-PRD_COLUMN_NAME_DICT['S'] = PRD_STORE
-PRD_COLUMN_NAME_DICT['T'] = PRD_CARD
-PRD_COLUMN_NAME_DICT['U'] = ROW_IS_DEL
-PRD_COLUMN_NAME_DICT['V'] = PRD_DESC
+# Excel表字母列对应的数据库字段名
+XLS_COLUMN_DICT = {}
+XLS_COLUMN_DICT['D'] = ROW_GIFT_ID
+XLS_COLUMN_DICT['E'] = ROW_PRD_CODE
+XLS_COLUMN_DICT['F'] = ROW_PRD_NAME
+XLS_COLUMN_DICT['G'] = ROW_ORIGIN_POINT
+XLS_COLUMN_DICT['I'] = ROW_TYPE
+XLS_COLUMN_DICT['J'] = ROW_EX_TIMES
+XLS_COLUMN_DICT['K'] = ROW_MONTH_EXCHANGE
+XLS_COLUMN_DICT['L'] = ROW_START_TIME
+XLS_COLUMN_DICT['M'] = ROW_END_TIME
+XLS_COLUMN_DICT['N'] = ROW_EXCHANGE_TYPE
+XLS_COLUMN_DICT['O'] = ROW_TOTAL_COUNT
+XLS_COLUMN_DICT['Q'] = ROW_MODULE
+XLS_COLUMN_DICT['R'] = ROW_SEQ_NO
+XLS_COLUMN_DICT['S'] = ROW_STORE_SCOPE
+XLS_COLUMN_DICT['T'] = ROW_CARD_ID
+XLS_COLUMN_DICT['U'] = ROW_IS_DEL
+XLS_COLUMN_DICT['V'] = ROW_DESCRIPTION
 
 # 用礼品的条形码构建其描述内容
 def buildGiftDesc(code):
@@ -60,30 +60,30 @@ def formatRowDict(dict):
 	# 礼品编码去掉空格
 	dict[ROW_GIFT_ID] = strippedString(dict[ROW_GIFT_ID])
 	# 产品条形码去掉空格
-	dict[PRD_CODE] = strippedString(dict[PRD_CODE])
+	dict[ROW_PRD_CODE] = strippedString(dict[ROW_PRD_CODE])
 	# 礼品名称去掉空格
-	dict[PRD_NAME] = strippedString(dict[PRD_NAME])
+	dict[ROW_PRD_NAME] = strippedString(dict[ROW_PRD_NAME])
 	# 常规兑分值转化为整数
-	# dict[PRD_POINT] = int(dict[PRD_POINT])
+	# dict[ROW_ORIGIN_POINT] = int(dict[ROW_ORIGIN_POINT])
 	# 产品类型截取整数
-	dict[PRD_TYPE] = int(dict[PRD_TYPE][0])
+	dict[ROW_TYPE] = int(dict[ROW_TYPE][0])
 	# 限购次数转化为整数
-	# dict[PRD_EX_TIMES] = int(dict[PRD_EX_TIMES])
+	# dict[ROW_EX_TIMES] = int(dict[ROW_EX_TIMES])
 	# 是否每月限制截取整数
-	dict[PRD_MONTH_EXCHANGE] = int(dict[PRD_MONTH_EXCHANGE][0])
+	dict[ROW_MONTH_EXCHANGE] = int(dict[ROW_MONTH_EXCHANGE][0])
 	# 是否快递截取整数
-	dict[PRD_EX_TYPE] = int(dict[PRD_EX_TYPE][0])
+	dict[ROW_EXCHANGE_TYPE] = int(dict[ROW_EXCHANGE_TYPE][0])
 	# 所在版块截取整数
-	dict[PRD_MODULE] = int(dict[PRD_MODULE][0])
+	dict[ROW_MODULE] = int(dict[ROW_MODULE][0])
 	# 所在位置转化为整数
-	# dict[PRD_SEQ_NO] = int(dict[PRD_SEQ_NO])
+	# dict[ROW_SEQ_NO] = int(dict[ROW_SEQ_NO])
 	# 是否指定门店截取整数
-	dict[PRD_STORE] = int(dict[PRD_STORE][0])
+	dict[ROW_STORE_SCOPE] = int(dict[ROW_STORE_SCOPE][0])
 	# 是否券码截取整数
-	dict[PRD_CARD] = int(dict[PRD_CARD][0])
+	dict[ROW_CARD_ID] = int(dict[ROW_CARD_ID][0])
 	# 是否上架截取整数
 	dict[ROW_IS_DEL] = int(dict[ROW_IS_DEL][0])
-	dict[PRD_DESC] = buildGiftDesc(dict[PRD_CODE])
+	dict[ROW_DESCRIPTION] = buildGiftDesc(dict[ROW_PRD_CODE])
 	return dict
 
 # 将某一行的数据构建成一个字典
@@ -91,14 +91,14 @@ def buildRowDict(worksheet, row_index):
 	row_dict = {}
 	for row in worksheet.iter_rows(min_row=row_index, max_row=row_index):
 		for cell in row:
-			if cell.column in PRD_COLUMN_NAME_DICT:
-				row_dict.setdefault(PRD_COLUMN_NAME_DICT[cell.column], cell.value)
+			if cell.column in XLS_COLUMN_DICT:
+				row_dict.setdefault(XLS_COLUMN_DICT[cell.column], cell.value)
 	return formatRowDict(row_dict)
 
 # 数据库查询在上架状态的礼品记录
 def selectGiftRow(cursor, gift_xls):
 	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s AND is_del = 0 AND module = %(module)s"
-	cursor.execute(select_stmt, {'gift_id': gift_xls[ROW_GIFT_ID], 'module': gift_xls[PRD_MODULE]})
+	cursor.execute(select_stmt, {'gift_id': gift_xls[ROW_GIFT_ID], 'module': gift_xls[ROW_MODULE]})
 	gift_row = cursor.fetchone()
 	return gift_row
 
@@ -117,7 +117,7 @@ def insertGiftRow(cursor, gift_xls):
 		cursor.execute(update_gift, {'stock_id': cursor.lastrowid, 'id': cursor.lastrowid})
 
 		# 插入一条新的库存记录
-		insertStock(cursor, gift_xls[PRD_STOCK_COUNT])
+		insertStock(cursor, gift_xls[ROW_TOTAL_COUNT])
 
 # 修改礼品记录为下架状态
 def unshelveGiftRow(cursor, id):
@@ -159,8 +159,8 @@ else:
 cursor = cnx.cursor(buffered=True, dictionary=True)
 
 gift_xls = buildRowDict(sheet, 3)
-gift_xls[ROW_GIFT_ID] = 'test-005'
-gift_xls[ROW_IS_DEL] = 1
+gift_xls[ROW_GIFT_ID] = 'test-006'
+gift_xls[ROW_IS_DEL] = 0
 
 # 查询数据库礼品记录
 gift_row = selectGiftRow(cursor, gift_xls)
@@ -169,7 +169,7 @@ print gift_row
 if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
 	print "** 礼品已经存在，修改相关数据", gift_xls[ROW_GIFT_ID]
 
-	if gift_row[PRD_MONTH_EXCHANGE] == 1: # 每月兑换有限制
+	if gift_row[ROW_MONTH_EXCHANGE] == 1: # 每月兑换有限制
 		print "** ** 每月兑换有限制，修改相关数据"
 	else: # 每月兑换无限制
 		print "** ** 每月兑换无限制"
