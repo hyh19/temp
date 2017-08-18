@@ -56,9 +56,11 @@ def buildGiftDesc(code):
 	url3 = r'.jpg"></div>'
 	return (url1+url2+url3)
 
+# 去除字符串左右两侧的空格
 def strippedString(str):
 	return string.strip(str)
 
+# 格式化礼品记录数据
 def formatRowDict(dict):
 	# 礼品编码去掉空格
 	dict[ROW_GIFT_ID] = strippedString(dict[ROW_GIFT_ID])
@@ -89,7 +91,7 @@ def formatRowDict(dict):
 	dict[ROW_DESCRIPTION] = buildGiftDesc(dict[ROW_PRD_CODE])
 	return dict
 
-# 将某一行的数据构建成一个字典
+# 将Excel表某一行的数据构建成一个数据库记录字典
 def buildRowDict(worksheet, row_index):
 	row_dict = {}
 	for row in worksheet.iter_rows(min_row=row_index, max_row=row_index):
@@ -153,9 +155,15 @@ def updateGiftRow(cursor, gift_row, gift_xls):
 	# 新增库存总量
 	updateStockRow(cursor, gift_row[ROW_STOCK_ID], gift_xls[ROW_TOTAL_COUNT])
 
-wb = openpyxl.load_workbook(sys.argv[1])
-sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
-	
+# ------------------------------------------------------------------------------
+# 业务逻辑：读取Excel表的
+# ------------------------------------------------------------------------------
+workbook = openpyxl.load_workbook(sys.argv[1])
+worksheet = workbook.get_sheet_by_name(unicode('上架0815', "utf-8"))
+
+# ------------------------------------------------------------------------------
+# 业务逻辑：连接数据库
+# ------------------------------------------------------------------------------
 cnx = mysql.connector.connect(user='root', password='tcbj',
                               host='192.168.103.107',
                               database='wxexchange')
@@ -168,13 +176,14 @@ else:
 
 cursor = cnx.cursor(buffered=True, dictionary=True)
 
-gift_xls = buildRowDict(sheet, 3)
-gift_xls[ROW_GIFT_ID] = 'test-007'
-gift_xls[ROW_IS_DEL] = 0
+# ------------------------------------------------------------------------------
+# 业务逻辑：根据Excel表的配置修改数据库记录
+# ------------------------------------------------------------------------------
+gift_xls = buildRowDict(worksheet, 3)
+gift_xls[ROW_GIFT_ID] = 'test-008'
 
 # 查询数据库礼品记录
 gift_row = selectGiftRow(cursor, gift_xls)
-print gift_row
 
 if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
 	print "** 礼品已经存在，修改相关数据", gift_xls[ROW_GIFT_ID]
@@ -192,6 +201,9 @@ else: # 数据库礼品记录不存在则插入一条新记录
 	print "-- 礼品不存在，插入一条新记录", gift_xls[ROW_GIFT_ID]
 	insertGiftRow(cursor, gift_xls)
 
+# ------------------------------------------------------------------------------
+# 业务逻辑：关闭数据库
+# ------------------------------------------------------------------------------
 cnx.commit()
 cursor.close()
 cnx.close()
