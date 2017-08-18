@@ -7,7 +7,8 @@ import pprint
 import mysql.connector
 from datetime import datetime, date
 
-# 字段名称
+# 数据库字段名称
+ROW_ID = 'id'
 ROW_GIFT_ID = 'gift_id'
 ROW_PRD_CODE = 'prd_code'
 ROW_PRD_NAME = 'prd_name'
@@ -25,6 +26,7 @@ ROW_STORE_SCOPE = 'store_scope'
 ROW_CARD_ID = 'card_id'
 ROW_IS_DEL = 'is_del'
 ROW_DESCRIPTION = 'description'
+ROW_STOCK_ID = 'stock_id'
 
 # Excel表字母列对应的数据库字段名
 XLS_COLUMN_DICT = {}
@@ -95,6 +97,23 @@ def buildRowDict(worksheet, row_index):
 				row_dict.setdefault(XLS_COLUMN_DICT[cell.column], cell.value)
 	return formatRowDict(row_dict)
 
+# 插入一条新的库存记录
+def insertStock(cur, total):
+	insert_stock = ("INSERT INTO product_stock (total_count) VALUES (%(total_count)s)")
+	cur.execute(insert_stock, {'total_count': total})
+
+# 增加库存
+def updateStockRow(cursor, stock_id, delta):
+	# 查询原来库存总量
+	select_stmt = "SELECT total_count FROM product_stock WHERE id = %(stock_id)s"
+	cursor.execute(select_stmt, {'stock_id': stock_id})
+	if cursor.rowcount > 0:
+		# 增加库存后的总量
+		total = cursor.fetchone()[ROW_TOTAL_COUNT] + delta
+		# 修改库存总量
+		update_stmt = "UPDATE product_stock SET total_count = %(total_count)s WHERE id = %(stock_id)s"
+		cursor.execute(update_stmt, {'total_count': total, 'stock_id': stock_id})
+
 # 数据库查询在上架状态的礼品记录
 def selectGiftRow(cursor, gift_xls):
 	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s AND is_del = 0 AND module = %(module)s"
@@ -124,26 +143,14 @@ def unshelveGiftRow(cursor, id):
 	update_gift = "UPDATE product SET is_del = %(is_del)s WHERE id = %(id)s"
 	cursor.execute(update_gift, {'is_del': 1, 'id': id})
 
-# 插入一条新的库存记录
-def insertStock(cur, total):
-	insert_stock = ("INSERT INTO product_stock (total_count) VALUES (%(total_count)s)")
-	cur.execute(insert_stock, {'total_count': total})
+# 修改礼品记录：开始时间、结束时间、增加库存、上下架状态
+def updateGiftRow(cursor, gift_row, gift_xls):
+	# 修改开始时间、结束时间、上下架状态
+	update_gift = "UPDATE product SET start_time = %(start_time)s, end_time = %(end_time)s, is_del = %(is_del)s WHERE id = %(id)s"
+	cursor.execute(update_gift, {'start_time': gift_xls[ROW_START_TIME], 'end_time': gift_xls[ROW_END_TIME], 'is_del': gift_xls[ROW_IS_DEL], 'id': gift_row[ROW_ID]})
 
-# 增加库存
-def addStock(conn, cur, stock_id, quantity):
-	# 查询原来库存总量
-	select_stmt = "SELECT total_count FROM product_stock WHERE id = %(stock_id)s"
-	cur.execute(select_stmt, {'stock_id': stock_id})
-	if cur.rowcount > 0:
-		# 增加库存后的总量
-		total = cur.fetchone()['total_count'] + quantity
-		print total
-		# 修改库存总量
-		update_stmt = "UPDATE product_stock SET total_count = %(total_count)s WHERE id = %(stock_id)s"
-		cur.execute(update_stmt, {'total_count': total, 'stock_id': stock_id})
-
-
-
+	# 新增库存总量
+	updateStockRow(cursor, gift_row[ROW_STOCK_ID], gift_xls[ROW_TOTAL_COUNT])
 
 wb = openpyxl.load_workbook(sys.argv[1])
 sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
@@ -168,9 +175,9 @@ print gift_row
 
 if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
 	print "** 礼品已经存在，修改相关数据", gift_xls[ROW_GIFT_ID]
-
 	if gift_row[ROW_MONTH_EXCHANGE] == 1: # 每月兑换有限制
 		print "** ** 每月兑换有限制，修改相关数据"
+		updateGiftRow(cursor, gift_row, gift_xls)
 	else: # 每月兑换无限制
 		print "** ** 每月兑换无限制"
 		if gift_row[ROW_IS_DEL] == 1: # 目前是下架状态
