@@ -8,6 +8,9 @@ import mysql.connector
 from datetime import datetime, date
 import os
 
+# ------------------------------------------------------------------------------
+# 常量定义
+# ------------------------------------------------------------------------------
 # 数据库字段名称
 ROW_ID = 'id'
 ROW_GIFT_ID = 'gift_id'
@@ -49,6 +52,9 @@ XLS_COLUMN_DICT['T'] = ROW_CARD_ID
 XLS_COLUMN_DICT['U'] = ROW_IS_DEL
 XLS_COLUMN_DICT['V'] = ROW_DESCRIPTION
 
+# ------------------------------------------------------------------------------
+# 函数接口：处理Excel表数据
+# ------------------------------------------------------------------------------
 # 用礼品的条形码构建其描述内容
 def buildGiftDesc(code):
 	url1 = r'<div align="center"><img src="http://cdn-yyj.4000916916.com/wx/wxExchange/prdDescImage/'
@@ -100,6 +106,9 @@ def buildRowDict(worksheet, row_index):
 				row_dict.setdefault(XLS_COLUMN_DICT[cell.column], cell.value)
 	return formatRowDict(row_dict)
 
+# ------------------------------------------------------------------------------
+# 函数接口：修改数据库记录
+# ------------------------------------------------------------------------------
 # 插入一条新的库存记录
 def insertStock(cur, total):
 	insert_stock = ("INSERT INTO product_stock (total_count) VALUES (%(total_count)s)")
@@ -156,11 +165,11 @@ def updateGiftRow(cursor, gift_row, gift_xls):
 	updateStockRow(cursor, gift_row[ROW_STOCK_ID], gift_xls[ROW_TOTAL_COUNT])
 
 # ------------------------------------------------------------------------------
-# 业务逻辑：读取Excel表的
+# 业务逻辑：读取Excel表
 # ------------------------------------------------------------------------------
 workbook = openpyxl.load_workbook(sys.argv[1])
-worksheet = workbook.get_sheet_by_name(unicode('上架0815', "utf-8"))
-
+worksheet = workbook.get_sheet_by_name('config')
+max_row = worksheet.max_row
 # ------------------------------------------------------------------------------
 # 业务逻辑：连接数据库
 # ------------------------------------------------------------------------------
@@ -179,27 +188,27 @@ cursor = cnx.cursor(buffered=True, dictionary=True)
 # ------------------------------------------------------------------------------
 # 业务逻辑：根据Excel表的配置修改数据库记录
 # ------------------------------------------------------------------------------
-gift_xls = buildRowDict(worksheet, 3)
-gift_xls[ROW_GIFT_ID] = 'test-008'
 
-# 查询数据库礼品记录
-gift_row = selectGiftRow(cursor, gift_xls)
+for row_idx in range(3, max_row):
+	gift_xls = buildRowDict(worksheet, row_idx)
+	# 查询数据库礼品记录
+	gift_row = selectGiftRow(cursor, gift_xls)
 
-if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
-	print "** 礼品已经存在，修改相关数据", gift_xls[ROW_GIFT_ID]
-	if gift_row[ROW_MONTH_EXCHANGE] == 1: # 每月兑换有限制
-		print "** ** 每月兑换有限制，修改相关数据"
-		updateGiftRow(cursor, gift_row, gift_xls)
-	else: # 每月兑换无限制
-		print "** ** 每月兑换无限制"
-		print "**** 目前是上架状态，先修改为下架状态，再插入一条新的记录", gift_xls[ROW_GIFT_ID]
-		unshelveGiftRow(cursor, gift_row['id'])
-		# 插入一条新记录
+	if gift_row: # 数据库礼品记录已存在则根据Excel表修改相关数据
+		print "** 礼品已经存在，修改相关数据", gift_xls[ROW_GIFT_ID]
+		if gift_row[ROW_MONTH_EXCHANGE] == 1: # 每月兑换有限制
+			print "** ** 每月兑换有限制，修改相关数据"
+			updateGiftRow(cursor, gift_row, gift_xls)
+		else: # 每月兑换无限制
+			print "** ** 每月兑换无限制"
+			print "**** 目前是上架状态，先修改为下架状态，再插入一条新的记录", gift_xls[ROW_GIFT_ID]
+			unshelveGiftRow(cursor, gift_row['id'])
+			# 插入一条新记录
+			insertGiftRow(cursor, gift_xls)
+
+	else: # 数据库礼品记录不存在则插入一条新记录
+		print "-- 礼品不存在，插入一条新记录", gift_xls[ROW_GIFT_ID]
 		insertGiftRow(cursor, gift_xls)
-
-else: # 数据库礼品记录不存在则插入一条新记录
-	print "-- 礼品不存在，插入一条新记录", gift_xls[ROW_GIFT_ID]
-	insertGiftRow(cursor, gift_xls)
 
 # ------------------------------------------------------------------------------
 # 业务逻辑：关闭数据库
