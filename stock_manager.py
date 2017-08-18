@@ -109,7 +109,7 @@ if cnx.is_connected():
 else:
 	print '数据库连接失败'
 
-cursor = cnx.cursor(buffered=True)
+cursor = cnx.cursor(buffered=True, dictionary=True)
 
 def isGiftExist(cur, gid):
 	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s"
@@ -135,12 +135,28 @@ def insertStock(conn, cur, stock):
 	insert_stock = ("INSERT INTO product_stock (total_count) VALUES (%(total_count)s)")
 	cur.execute(insert_stock, {'total_count': stock[PRD_STOCK_COUNT]})
 
+# 增加库存
+def addStock(conn, cur, stock_id, quantity):
+	# 查询原来库存总量
+	select_stmt = "SELECT total_count FROM product_stock WHERE id = %(stock_id)s"
+	cur.execute(select_stmt, {'stock_id': stock_id})
+	if cur.rowcount > 0:
+		# 增加库存后的总量
+		total = cur.fetchone()['total_count'] + quantity
+		print total
+		# 修改库存总量
+		update_stmt = "UPDATE product_stock SET total_count = %(total_count)s WHERE id = %(stock_id)s"
+		cur.execute(update_stmt, {'total_count': total, 'stock_id': stock_id})
+	
+
+
+addStock(cnx, cursor, 337, 100)
 # def updateGift(conn, cur, gift):
 # 	# 修改库存总量
 # 	update_gift = "UPDATE product SET  = %(stock_id)s WHERE gift_id = %(gift_id)s"
 # 	cur.execute(update_gift, {'stock_id': cur.lastrowid, 'id': cur.lastrowid})
 	
-insertNewGift(cnx, cursor, tmp)
+# insertNewGift(cnx, cursor, tmp)
 
 cnx.commit()
 cursor.close()
