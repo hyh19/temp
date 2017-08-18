@@ -7,9 +7,6 @@ import pprint
 import mysql.connector
 from datetime import datetime, date
 
-wb = openpyxl.load_workbook(sys.argv[1])
-sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
-
 # 字段名称
 PRD_GIFT_ID = 'gift_id'
 PRD_CODE = 'prd_code'
@@ -98,42 +95,31 @@ def buildRowDict(worksheet, row_index):
 				row_dict.setdefault(PRD_COLUMN_NAME_DICT[cell.column], cell.value)
 	return formatRowDict(row_dict)
 
-tmp = buildRowDict(sheet, 3)
-pprint.pprint(tmp)
-
-cnx = mysql.connector.connect(user='root', password='tcbj',
-                              host='192.168.103.107',
-                              database='wxexchange')
-if cnx.is_connected():
-	print '已连接数据库'
-else:
-	print '数据库连接失败'
-
-cursor = cnx.cursor(buffered=True, dictionary=True)
-
-def isGiftExist(cur, gid):
+# 判断礼品记录是否已经存在
+def isGiftExist(cursor, gift_id):
 	select_stmt = "SELECT * FROM product WHERE gift_id = %(gift_id)s"
-	cur.execute(select_stmt, {'gift_id': gid})
-	return (cur.rowcount > 0)
+	cursor.execute(select_stmt, {'gift_id': gift_id})
+	return (cursor.rowcount > 0)
 
 # 插入一条新的礼品记录
-def insertNewGift(conn, cur, gift):
+def insertGift(conn, cur, gift):
 	# 插入礼品
-	add_gift = ("INSERT INTO product "
-                "(gift_id, prd_code, prd_name, origin_point, type, ex_times, start_time, end_time, exchange_type, seq_no, module, description, store_scope, card_id, is_del, month_exchange) "
-                "VALUES (%(gift_id)s, %(prd_code)s, %(prd_name)s, %(origin_point)s, %(type)s, %(ex_times)s, %(start_time)s, %(end_time)s, %(exchange_type)s, %(seq_no)s, %(module)s, %(description)s, %(store_scope)s, %(card_id)s, %(is_del)s, %(month_exchange)s)")
-	cur.execute(add_gift, gift)
-	# 修改库存ID
+	insert_gift = ("INSERT INTO product "
+                   "(gift_id, prd_code, prd_name, origin_point, type, ex_times, start_time, end_time, exchange_type, seq_no, module, description, store_scope, card_id, is_del, month_exchange) "
+                   "VALUES (%(gift_id)s, %(prd_code)s, %(prd_name)s, %(origin_point)s, %(type)s, %(ex_times)s, %(start_time)s, %(end_time)s, %(exchange_type)s, %(seq_no)s, %(module)s, %(description)s, %(store_scope)s, %(card_id)s, %(is_del)s, %(month_exchange)s)")
+	cur.execute(insert_gift, gift)
+
+	# 修改礼物记录里的库存ID
 	update_gift = "UPDATE product SET stock_id = %(stock_id)s WHERE id = %(id)s"
 	cur.execute(update_gift, {'stock_id': cur.lastrowid, 'id': cur.lastrowid})
 
-	stock = {PRD_STOCK_COUNT: gift[PRD_STOCK_COUNT]}
-	insertStock(conn, cur, stock)
+	# 插入库存记录
+	insertStock(conn, cur, gift[PRD_STOCK_COUNT])
 
 # 插入一条新的库存记录
-def insertStock(conn, cur, stock):
+def insertStock(conn, cur, total):
 	insert_stock = ("INSERT INTO product_stock (total_count) VALUES (%(total_count)s)")
-	cur.execute(insert_stock, {'total_count': stock[PRD_STOCK_COUNT]})
+	cur.execute(insert_stock, {'total_count': total})
 
 # 增加库存
 def addStock(conn, cur, stock_id, quantity):
@@ -147,16 +133,33 @@ def addStock(conn, cur, stock_id, quantity):
 		# 修改库存总量
 		update_stmt = "UPDATE product_stock SET total_count = %(total_count)s WHERE id = %(stock_id)s"
 		cur.execute(update_stmt, {'total_count': total, 'stock_id': stock_id})
-	
 
 
-addStock(cnx, cursor, 337, 100)
-# def updateGift(conn, cur, gift):
-# 	# 修改库存总量
-# 	update_gift = "UPDATE product SET  = %(stock_id)s WHERE gift_id = %(gift_id)s"
-# 	cur.execute(update_gift, {'stock_id': cur.lastrowid, 'id': cur.lastrowid})
+wb = openpyxl.load_workbook(sys.argv[1])
+sheet = wb.get_sheet_by_name(unicode('上架0815', "utf-8"))
 	
-# insertNewGift(cnx, cursor, tmp)
+cnx = mysql.connector.connect(user='root', password='tcbj',
+                              host='192.168.103.107',
+                              database='wxexchange')
+if cnx.is_connected():
+	print '---- 已连接数据库 ----'
+else:
+	print '---- 数据库连接失败 ----'
+
+cursor = cnx.cursor(buffered=True, dictionary=True)
+
+
+tmp = buildRowDict(sheet, 3)
+tmp[PRD_GIFT_ID] = 'test-002'
+# pprint.pprint(tmp)
+
+# 礼品已经存在则修改相应记录
+# 礼品不存在则插入一条新的记录
+if isGiftExist(cursor, tmp[PRD_GIFT_ID]):
+	print "已经存在"
+else:
+	print "礼品不存在，插入新的礼品", tmp[PRD_GIFT_ID]
+	insertGift(cnx, cursor, tmp)
 
 cnx.commit()
 cursor.close()
