@@ -14,8 +14,7 @@ web:
       gitlab_rails['smtp_domain'] = "163.com"  
       gitlab_rails['smtp_authentication'] = :login  
       gitlab_rails['smtp_enable_starttls_auto'] = true  
-
-gitlab_rails['gitlab_email_from'] = "mrhuangyuhui@163.com"  
+      gitlab_rails['gitlab_email_from'] = "mrhuangyuhui@163.com"  
   ports:
     - '80:80'
     - '2224:22'
