@@ -1,224 +1,313 @@
-# [Vert.x core examples](https://github.com/vert-x3/vertx-examples/tree/master/core-examples)
+gh-md-toc
+=========
 
-<!-- TOC -->
+gh-md-toc — is for you if you **want to generate TOC** for README.md or
+GitHub's wiki page and **don't want to install any additional software**.
 
-- [[Vert.x core examples](https://github.com/vert-x3/vertx-examples/tree/master/core-examples)](#vertx-core-exampleshttpsgithubcomvert-x3vertx-examplestreemastercore-examples)
-    - [[Dependencies required](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#dependencies-required)](#dependencies-requiredhttpsgithubcomvert-x3vertx-examplestreemastercore-examplesdependencies-required)
-    - [[Embedding](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#embedding)](#embeddinghttpsgithubcomvert-x3vertx-examplestreemastercore-examplesembedding)
-    - [HTTP examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#http-examples)](#http-examples-httpsgithubcomvert-x3vertx-examplestreemastercore-exampleshttp-examples)
-        - [Simple [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple)](#simple-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessimple)
-        - [Sendfile [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#sendfile)](#sendfile-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessendfile)
-        - [Simple form [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple-form)](#simple-form-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessimple-form)
-        - [Simple form file upload [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple-form-file-upload)](#simple-form-file-upload-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessimple-form-file-upload)
-        - [Http request body upload [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#http-request-body-upload)](#http-request-body-upload-httpsgithubcomvert-x3vertx-examplestreemastercore-exampleshttp-request-body-upload)
-    - [Event bus examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#event-bus-examples)](#event-bus-examples-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesevent-bus-examples)
-        - [Point to point [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#point-to-point)](#point-to-point-httpsgithubcomvert-x3vertx-examplestreemastercore-examplespoint-to-point)
-        - [Publish / Subscribe [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#publish--subscribe)](#publish--subscribe-httpsgithubcomvert-x3vertx-examplestreemastercore-examplespublish--subscribe)
-        - [MessageCodec [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#messagecodec)](#messagecodec-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesmessagecodec)
-    - [Future [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#future)](#future-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesfuture)
-    - [Verticle examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#verticle-examples)](#verticle-examples-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesverticle-examples)
-        - [Deploy example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#deploy-example)](#deploy-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesdeploy-example)
-        - [Asynchronous deployment example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#asynchronous-deployment-example)](#asynchronous-deployment-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesasynchronous-deployment-example)
-        - [Worker Verticle example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#worker-verticle-example)](#worker-verticle-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesworker-verticle-example)
-    - [Execute blocking example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#execute-blocking-example)](#execute-blocking-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesexecute-blocking-example)
+It's my try to fix a problem:
 
-<!-- /TOC -->
+  * [github/issues/215](https://github.com/isaacs/github/issues/215)
 
-运行示例代码的两种方式
+gh-md-toc is able to process:
 
-- 在 IDE 上执行 `main` 方法
-- 在终端上执行以下命令
+  * stdin
+  * local files (markdown files in local file system)
+  * remote files (html files on github.com)
+
+gh-md-toc tested on Ubuntu, and macOS High Sierra (gh-md-toc release 0.4.9). If you want it on Windows, you
+better to use a golang based implementation:
+
+  * [github-markdown-toc.go](https://github.com/ekalinin/github-markdown-toc.go)
+
+It's more solid, reliable and with ability of a parallel processing. And
+absolutely without dependencies.
+
+[![Build Status](https://travis-ci.org/ekalinin/github-markdown-toc.svg?branch=master)](https://travis-ci.org/ekalinin/github-markdown-toc)
+
+Table of contents
+=================
+
+<!--ts-->
+   * [gh-md-toc](#gh-md-toc)
+   * [Table of contents](#table-of-contents)
+   * [Installation](#installation)
+   * [Usage](#usage)
+      * [STDIN](#stdin)
+      * [Local files](#local-files)
+      * [Remote files](#remote-files)
+      * [Multiple files](#multiple-files)
+      * [Combo](#combo)
+      * [Auto insert and update TOC](#auto-insert-and-update-toc)
+   * [Tests](#tests)
+   * [Dependency](#dependency)
+<!--te-->
+
+
+Installation
+============
 
 ```bash
-mvn clean compile
-vertx run fully-qualified-name-of-the-example -cp target/classes
+$ wget https://raw.githubusercontent.com/ekalinin/github-markdown-toc/master/gh-md-toc
+$ chmod a+x gh-md-toc
 ```
 
-## [Dependencies required](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#dependencies-required)
-
-Maven 依赖 [`pom.xml`](https://github.com/vert-x3/vertx-examples/blob/master/core-examples/pom.xml)
-
-```xml
-<dependency>
-  <groupId>io.vertx</groupId>
-  <artifactId>vertx-core</artifactId>
-  <version>3.5.1</version>
-</dependency>
-```
-
-## [Embedding](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#embedding)
-
-Java API
-
-- [Interface Vertx](http://vertx.io/docs/apidocs/io/vertx/core/Vertx.html)
-- [Interface HttpServer](http://vertx.io/docs/apidocs/io/vertx/core/http/HttpServer.html)
-- [Interface Handler<E>](http://vertx.io/docs/apidocs/io/vertx/core/Handler.html)
-- [Interface HttpServerRequest](http://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerRequest.html)
-- [Interface HttpServerResponse](http://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerResponse.html)
-- [Interface ReadStream<T>](http://vertx.io/docs/apidocs/io/vertx/core/streams/ReadStream.html)
-- [Interface WriteStream<T>](http://vertx.io/docs/apidocs/io/vertx/core/streams/WriteStream.html)
-
-[Java Code](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/embed)
-
-```java
-Vertx.vertx().createHttpServer().requestHandler(req -> req.response().end("Hello World!")).listen(8080);
-```
-
-## HTTP examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#http-examples)
-
-### Simple [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple)
-
-**API**
-
-Java
-- [Class AbstractVerticle](https://vertx.io/docs/apidocs/io/vertx/core/AbstractVerticle.html)
-- [Interface Verticle](https://vertx.io/docs/apidocs/io/vertx/core/Verticle.html)
-- [Interface Future<T>](https://vertx.io/docs/apidocs/io/vertx/core/Future.html)
-- [Interface AsyncResult<T>](http://vertx.io/docs/apidocs/io/vertx/core/AsyncResult.html)
-
-**Codes**
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/http/simple)
-- [Kotlin](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/kotlin/io/vertx/example/core/http/simple)
-
-### Sendfile [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#sendfile)
-
-**Codes**
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/http/sendfile)
-- [Kotlin](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/kotlin/io/vertx/example/core/http/sendfile)
+Usage
+=====
 
 
-### Simple form [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple-form)
+STDIN
+-----
 
-**API**
-- [Interface MultiMap](http://vertx.io/docs/apidocs/io/vertx/core/MultiMap.html)
-- [setChunked](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerResponse.html#setChunked-boolean-)
-- [setExpectMultipart](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerRequest.html#setExpectMultipart-boolean-)
-- [endHandler](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerRequest.html#endHandler-io.vertx.core.Handler-)
-- [formAttributes](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerRequest.html#formAttributes--)
+Here's an example of TOC creating for markdown from STDIN:
 
-**Codes**
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/http/simpleform)
-- [Kotlin](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/kotlin/io/vertx/example/core/http/simpleform)
-
-### Simple form file upload [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple-form-file-upload)
-
-**API**
-- [Interface HttpServerFileUpload](http://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerFileUpload.html)
-- [uploadHandler](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerRequest.html#uploadHandler-io.vertx.core.Handler-)
-- [exceptionHandler](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerFileUpload.html#exceptionHandler-io.vertx.core.Handler-)
-- [endHandler](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerFileUpload.html#endHandler-io.vertx.core.Handler-)
-- [streamToFileSystem](https://vertx.io/docs/apidocs/io/vertx/core/http/HttpServerFileUpload.html#streamToFileSystem-java.lang.String-)
-
-**Codes**
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/http/simpleformupload)
-- [Kotlin](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/kotlin/io/vertx/example/core/http/simpleformupload)
-
-### Http request body upload [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#http-request-body-upload)
-
-**API**
-
-- [Interface FileSystem](http://vertx.io/docs/apidocs/io/vertx/core/file/FileSystem.html)
-- [Interface AsyncFile](http://vertx.io/docs/apidocs/io/vertx/core/file/AsyncFile.html)
-- [Interface Pump](http://vertx.io/docs/apidocs/io/vertx/core/streams/Pump.html)
-- [open](https://vertx.io/docs/apidocs/io/vertx/core/file/FileSystem.html#open-java.lang.String-io.vertx.core.file.OpenOptions-io.vertx.core.Handler-)
-
-**Codes**
-
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/http/upload)
-- Kotlin 跳过
-
-## Event bus examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#event-bus-examples)
-
-### Point to point [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#point-to-point)
-
-**API**
-
-- [Interface EventBus](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html)
-- [Interface Message<T>](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/Message.html)
-- [Interface MessageConsumer<T>](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/MessageConsumer.html)
-- [send](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html#send-java.lang.String-java.lang.Object-io.vertx.core.Handler-)
-- [consumer](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html#consumer-java.lang.String-io.vertx.core.Handler-)
-
-**Codes**
-
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/eventbus/pointtopoint)
-- [Kotlin](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/kotlin/io/vertx/example/core/eventbus/pointtopoint)
 ```bash
-vertx run Receiver.kt -cluster
-vertx run Sender.kt -cluster
+➥ cat ~/projects/Dockerfile.vim/README.md | ./gh-md-toc -
+  * [Dockerfile.vim](#dockerfilevim)
+  * [Screenshot](#screenshot)
+  * [Installation](#installation)
+        * [OR using Pathogen:](#or-using-pathogen)
+        * [OR using Vundle:](#or-using-vundle)
+  * [License](#license)
 ```
 
-### Publish / Subscribe [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#publish--subscribe)
+Local files
+-----------
 
-**API**
+Here's an example of TOC creating for a local README.md:
 
-- [publish](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html#publish-java.lang.String-java.lang.Object-)
+```bash
+➥ ./gh-md-toc ~/projects/Dockerfile.vim/README.md                                                                                                                                                Вс. марта 22 22:51:46 MSK 2015
 
-**Codes**
+Table of Contents
+=================
 
-- [Java](https://github.com/vert-x3/vertx-examples/blob/master/core-examples/src/main/java/io/vertx/example/core/eventbus/pubsub)
-- [Kotlin](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/kotlin/io/vertx/example/core/eventbus/pubsub)
+  * [Dockerfile.vim](#dockerfilevim)
+  * [Screenshot](#screenshot)
+  * [Installation](#installation)
+        * [OR using Pathogen:](#or-using-pathogen)
+        * [OR using Vundle:](#or-using-vundle)
+  * [License](#license)
+```
 
-### MessageCodec [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#messagecodec)
+Remote files
+------------
 
-**API**
+And here's an example, when you have a README.md like this:
 
-- [Interface MessageCodec<S,R>](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/MessageCodec.html)
+  * [README.md without TOC](https://github.com/ekalinin/envirius/blob/f939d3b6882bfb6ecb28ef7b6e62862f934ba945/README.md)
 
-**Codes**
+And you want to generate TOC for it.
 
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/eventbus/messagecodec)
+There is nothing easier:
 
-## Future [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#future)
+```bash
+➥ ./gh-md-toc https://github.com/ekalinin/envirius/blob/master/README.md
 
-**API**
+Table of Contents
+=================
 
-- [compose](https://vertx.io/docs/apidocs/io/vertx/core/Future.html#compose-java.util.function.Function-)
+  * [envirius](#envirius)
+    * [Idea](#idea)
+    * [Features](#features)
+  * [Installation](#installation)
+  * [Uninstallation](#uninstallation)
+  * [Available plugins](#available-plugins)
+  * [Usage](#usage)
+    * [Check available plugins](#check-available-plugins)
+    * [Check available versions for each plugin](#check-available-versions-for-each-plugin)
+    * [Create an environment](#create-an-environment)
+    * [Activate/deactivate environment](#activatedeactivate-environment)
+      * [Activating in a new shell](#activating-in-a-new-shell)
+      * [Activating in the same shell](#activating-in-the-same-shell)
+    * [Get list of environments](#get-list-of-environments)
+    * [Get current activated environment](#get-current-activated-environment)
+    * [Do something in environment without enabling it](#do-something-in-environment-without-enabling-it)
+    * [Get help](#get-help)
+    * [Get help for a command](#get-help-for-a-command)
+  * [How to add a plugin?](#how-to-add-a-plugin)
+    * [Mandatory elements](#mandatory-elements)
+      * [plug_list_versions](#plug_list_versions)
+      * [plug_url_for_download](#plug_url_for_download)
+      * [plug_build](#plug_build)
+    * [Optional elements](#optional-elements)
+      * [Variables](#variables)
+      * [Functions](#functions)
+    * [Examples](#examples)
+  * [Example of the usage](#example-of-the-usage)
+  * [Dependencies](#dependencies)
+  * [Supported OS](#supported-os)
+  * [Tests](#tests)
+  * [Version History](#version-history)
+  * [License](#license)
+  * [README in another language](#readme-in-another-language)
+```
 
-**Codes**
+That's all! Now all you need — is copy/paste result from console into original
+README.md.
 
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/future)
+And here is a result:
 
-## Verticle examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#verticle-examples)
+  * [README.md with TOC](https://github.com/ekalinin/envirius/blob/24ea3be0d3cc03f4235fa4879bb33dc122d0ae29/README.md)
 
-### Deploy example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#deploy-example)
+Moreover, it's able to work with GitHub's wiki pages:
 
-**API**
+```bash
+➥ ./gh-md-toc https://github.com/ekalinin/nodeenv/wiki/Who-Uses-Nodeenv
 
-- [Class DeploymentOptions](https://vertx.io/docs/apidocs/io/vertx/core/DeploymentOptions.html)
+Table of Contents
+=================
 
-**Codes**
+  * [Who Uses Nodeenv?](#who-uses-nodeenv)
+    * [OpenStack](#openstack)
+    * [pre-commit.com](#pre-commitcom)
+```
 
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/verticle/deploy)
-- Kotlin 跳过
+Multiple files
+--------------
 
-### Asynchronous deployment example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#asynchronous-deployment-example)
+It supports multiple files as well:
 
-**API**
+```bash
+➥ ./gh-md-toc \
+    https://github.com/aminb/rust-for-c/blob/master/hello_world/README.md \
+    https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md \
+    https://github.com/aminb/rust-for-c/blob/master/primitive_types_and_operators/README.md \
+    https://github.com/aminb/rust-for-c/blob/master/unique_pointers/README.md
 
-- [start](https://vertx.io/docs/apidocs/io/vertx/core/AbstractVerticle.html#start-io.vertx.core.Future-)
+  * [Hello world](https://github.com/aminb/rust-for-c/blob/master/hello_world/README.md#hello-world)
 
-**Codes**
+  * [Control Flow](https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md#control-flow)
+    * [If](https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md#if)
+    * [Loops](https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md#loops)
+    * [For loops](https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md#for-loops)
+    * [Switch/Match](https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md#switchmatch)
+    * [Method call](https://github.com/aminb/rust-for-c/blob/master/control_flow/README.md#method-call)
 
-- [Java](https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/verticle/asyncstart)
-- Kotlin 跳过
+  * [Primitive Types and Operators](https://github.com/aminb/rust-for-c/blob/master/primitive_types_and_operators/README.md#primitive-types-and-operators)
 
-学习到这
+  * [Unique Pointers](https://github.com/aminb/rust-for-c/blob/master/unique_pointers/README.md#unique-pointers)
+```
 
-### Worker Verticle example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#worker-verticle-example)
+Combo
+-----
 
-[setWorker](https://vertx.io/docs/apidocs/io/vertx/core/DeploymentOptions.html#setWorker-boolean-)
+You can easily combine both ways:
 
-https://github.com/vert-x3/vertx-examples/tree/master/core-examples/src/main/java/io/vertx/example/core/verticle/worker
+```bash
+➥ ./gh-md-toc \
+    ~/projects/Dockerfile.vim/README.md \
+    https://github.com/ekalinin/sitemap.s/blob/master/README.md
 
-对Event Loop和Worker Pool两个线程要深入了解
+  * [Dockerfile.vim](~/projects/Dockerfile.vim/README.md#dockerfilevim)
+  * [Screenshot](~/projects/Dockerfile.vim/README.md#screenshot)
+  * [Installation](~/projects/Dockerfile.vim/README.md#installation)
+        * [OR using Pathogen:](~/projects/Dockerfile.vim/README.md#or-using-pathogen)
+        * [OR using Vundle:](~/projects/Dockerfile.vim/README.md#or-using-vundle)
+  * [License](~/projects/Dockerfile.vim/README.md#license)
 
-## Execute blocking example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#execute-blocking-example)
+  * [sitemap.js](https://github.com/ekalinin/sitemap.js/blob/master/README.md#sitemapjs)
+    * [Installation](https://github.com/ekalinin/sitemap.js/blob/master/README.md#installation)
+    * [Usage](https://github.com/ekalinin/sitemap.js/blob/master/README.md#usage)
+    * [License](https://github.com/ekalinin/sitemap.js/blob/master/README.md#license)
 
-[executeBlocking](https://vertx.io/docs/apidocs/io/vertx/core/Vertx.html#executeBlocking-io.vertx.core.Handler-io.vertx.core.Handler-)
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+```
 
-[setWorkerPoolName](https://vertx.io/docs/apidocs/io/vertx/core/DeploymentOptions.html#setWorkerPoolName-java.lang.String-)
+Auto insert and update TOC
+--------------------------
 
-[setMaxWorkerExecuteTime](https://vertx.io/docs/apidocs/io/vertx/core/DeploymentOptions.html#setMaxWorkerExecuteTime-long-)
+Just put into a file these two lines:
 
-[setWorkerPoolSize](https://vertx.io/docs/apidocs/io/vertx/core/DeploymentOptions.html#setWorkerPoolSize-int-)
+```
+<!--ts-->
+<!--te-->
+```
+
+And run:
+
+```bash
+$ ./gh-md-toc --insert README.test.md
+
+Table of Contents
+=================
+
+   * [gh-md-toc](#gh-md-toc)
+   * [Installation](#installation)
+   * [Usage](#usage)
+      * [STDIN](#stdin)
+      * [Local files](#local-files)
+      * [Remote files](#remote-files)
+      * [Multiple files](#multiple-files)
+      * [Combo](#combo)
+   * [Tests](#tests)
+   * [Dependency](#dependency)
+
+!! TOC was added into: 'README.test.md'
+!! Origin version of the file: 'README.test.md.orig.2018-02-04_192655'
+!! TOC added into a separate file: 'README.test.md.toc.2018-02-04_192655'
+
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+```
+
+Now check the same file:
+
+```bash
+➜ grep -A15 "<\!\-\-ts" README.test.md
+<!--ts-->
+   * [gh-md-toc](#gh-md-toc)
+   * [Table of contents](#table-of-contents)
+   * [Installation](#installation)
+   * [Usage](#usage)
+      * [STDIN](#stdin)
+      * [Local files](#local-files)
+      * [Remote files](#remote-files)
+      * [Multiple files](#multiple-files)
+      * [Combo](#combo)
+      * [Auto insert and update TOC](#auto-insert-and-update-toc)
+   * [Tests](#tests)
+   * [Dependency](#dependency)
+
+<!-- Added by: <your-user>, at: 2018-02-04T19:38+03:00 -->
+
+<!--te-->
+```
+
+Next time when your file will be changed just repeat the command (`./gh-md-toc
+--insert ...`) and TOC will be refreshed again.
+
+
+Tests
+=====
+
+Done with [bats](https://github.com/sstephenson/bats).
+Useful articles:
+
+  * https://blog.engineyard.com/2014/bats-test-command-line-tools
+  * http://blog.spike.cx/post/60548255435/testing-bash-scripts-with-bats
+
+
+How to run tests:
+
+```bash
+➥ make test                                                                                                                                                                                                      Пн. марта 23 13:59:27 MSK 2015
+ ✓ TOC for local README.md
+ ✓ TOC for remote README.md
+ ✓ TOC for mixed README.md (remote/local)
+ ✓ TOC for markdown from stdin
+ ✓ --help
+ ✓ --version
+
+6 tests, 0 failures
+```
+
+Dependency
+==========
+
+  * curl or wget
+  * awk (mawk, gawk is not supported)
+  * grep
+  * sed
+  * bats (for unit tests)
+
+Tested on Ubuntu 14.04/14.10 in bash/zsh.
