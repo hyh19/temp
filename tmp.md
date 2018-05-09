@@ -1,24 +1,28 @@
 # [Vert.x core examples](https://github.com/vert-x3/vertx-examples/tree/master/core-examples)
 
-- [Vert.x core examples](#vertx-core-examples)
-  - [Dependencies required](#dependencies-required)
-  - [Embedding](#embedding)
-  - [HTTP examples >>](#http-examples)
-    - [Simple >>](#simple)
-    - [Sendfile >>](#sendfile)
-    - [Simple form >>](#simple-form)
-    - [Simple form file upload >>](#simple-form-file-upload)
-    - [Http request body upload >>](#http-request-body-upload)
-  - [Event bus examples >>](#event-bus-examples)
-    - [Point to point >>](#point-to-point)
-    - [Publish / Subscribe >>](#publish---subscribe)
-    - [MessageCodec >>](#messagecodec)
-  - [Future >>](#future)
-  - [Verticle examples >>](#verticle-examples)
-    - [Deploy example >>](#deploy-example)
-    - [Asynchronous deployment example >>](#asynchronous-deployment-example)
-    - [Worker Verticle example >>](#worker-verticle-example)
-  - [Execute blocking example >>](#execute-blocking-example)
+<!-- TOC -->
+
+- [[Vert.x core examples](https://github.com/vert-x3/vertx-examples/tree/master/core-examples)](#vertx-core-exampleshttpsgithubcomvert-x3vertx-examplestreemastercore-examples)
+    - [[Dependencies required](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#dependencies-required)](#dependencies-requiredhttpsgithubcomvert-x3vertx-examplestreemastercore-examplesdependencies-required)
+    - [[Embedding](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#embedding)](#embeddinghttpsgithubcomvert-x3vertx-examplestreemastercore-examplesembedding)
+    - [HTTP examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#http-examples)](#http-examples-httpsgithubcomvert-x3vertx-examplestreemastercore-exampleshttp-examples)
+        - [Simple [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple)](#simple-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessimple)
+        - [Sendfile [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#sendfile)](#sendfile-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessendfile)
+        - [Simple form [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple-form)](#simple-form-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessimple-form)
+        - [Simple form file upload [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#simple-form-file-upload)](#simple-form-file-upload-httpsgithubcomvert-x3vertx-examplestreemastercore-examplessimple-form-file-upload)
+        - [Http request body upload [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#http-request-body-upload)](#http-request-body-upload-httpsgithubcomvert-x3vertx-examplestreemastercore-exampleshttp-request-body-upload)
+    - [Event bus examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#event-bus-examples)](#event-bus-examples-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesevent-bus-examples)
+        - [Point to point [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#point-to-point)](#point-to-point-httpsgithubcomvert-x3vertx-examplestreemastercore-examplespoint-to-point)
+        - [Publish / Subscribe [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#publish--subscribe)](#publish--subscribe-httpsgithubcomvert-x3vertx-examplestreemastercore-examplespublish--subscribe)
+        - [MessageCodec [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#messagecodec)](#messagecodec-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesmessagecodec)
+    - [Future [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#future)](#future-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesfuture)
+    - [Verticle examples [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#verticle-examples)](#verticle-examples-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesverticle-examples)
+        - [Deploy example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#deploy-example)](#deploy-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesdeploy-example)
+        - [Asynchronous deployment example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#asynchronous-deployment-example)](#asynchronous-deployment-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesasynchronous-deployment-example)
+        - [Worker Verticle example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#worker-verticle-example)](#worker-verticle-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesworker-verticle-example)
+    - [Execute blocking example [>>](https://github.com/vert-x3/vertx-examples/tree/master/core-examples#execute-blocking-example)](#execute-blocking-example-httpsgithubcomvert-x3vertx-examplestreemastercore-examplesexecute-blocking-example)
+
+<!-- /TOC -->
 
 运行示例代码的两种方式
 
