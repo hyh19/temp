@@ -1,0 +1,13 @@
+{
+    "configs": [
+        {
+            "method": "aes-256-cfb",
+            "password": "teddysun.com",
+            "remarks": "外网",
+            "server": "119.29.183.26",
+            "server_port": 18800
+        }
+    ],
+    "localPort": 1080,
+    "shareOverLan": false
+}
